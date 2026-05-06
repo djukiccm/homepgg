@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>~/home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /*EDITMODE-BEGIN*/
+  --accent: #D97757;
+  --bg: #0a0a0a;
+  --card: #111111;
+  --card-2: #161616;
+  --line: #222222;
+  --line-2: #2c2c2c;
+  --text: #FAF9F5;
+  --dim: #7a7a77;
+  --dim-2: #545452;
+  --good: #7CC47A;
+  --warn: #E0B96A;
+  --bad:  #D96F6F;
+  --name: "marko";
+  --location: "novi sad";
+  --lat: 45.2671;
+  --lon: 19.8335;
+  /*EDITMODE-END*/
+  --grid: 12px;
+  --radius: 2px;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+html { min-height: 100%; }
+body {
+  min-height: 100vh;
+  padding: 28px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ---------- subtle texture ---------- */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+body.no-scanlines::before { display: none; }
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%, transparent 60%, rgba(0,0,0,0.6) 100%),
+    radial-gradient(60% 60% at 80% 90%, color-mix(in oklab, var(--accent) 6%, transparent), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- top status bar ---------- */
+.statusbar {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; gap: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0 4px 22px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.statusbar .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--good) 18%, transparent);
+}
+.statusbar .sep { color: var(--dim-2); }
+.statusbar .grow { flex: 1; }
+.statusbar a { color: var(--dim); text-decoration: none; transition: color .15s; }
+.statusbar a:hover { color: var(--accent); }
+.statusbar .clock { color: var(--text); letter-spacing: 2px; }
+
+/* ---------- main grid ---------- */
+.shell {
+  position: relative; z-index: 5;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+/* ---------- sidebar ---------- */
+.sidebar {
+  display: flex; flex-direction: column; gap: 16px;
+  position: sticky; top: 28px;
+  align-self: start;
+}
+
+.identity {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+.identity::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--accent);
+}
+.identity .ascii {
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.05;
+  color: var(--accent);
+  white-space: pre;
+  margin-bottom: 12px;
+  opacity: .9;
+}
+.identity .greet {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.identity .greet b { color: var(--text); font-weight: 500; }
+.identity .name {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin-top: 6px;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.identity .name .at { color: var(--accent); font-family: var(--mono); }
+.identity .quote {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  font-size: 12px;
+  color: var(--dim);
+  font-style: italic;
+  line-height: 1.5;
+  min-height: 50px;
+}
+.identity .quote::before { content: "“ "; color: var(--accent); font-style: normal; }
+
+/* nav rail */
+.nav {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  color: var(--dim);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background .15s, color .15s;
+}
+.nav a:hover { color: var(--text); background: var(--card-2); }
+.nav a .k { color: var(--dim-2); margin-left: auto; font-size: 10px; }
+.nav a .g { color: var(--accent); width: 14px; display: inline-block; text-align: center; }
+
+.weather {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.weather .head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.weather .head .loc { color: var(--text); letter-spacing: 1.5px; }
+.weather .now {
+  display: flex; align-items: center; gap: 14px;
+}
+.weather .glyph {
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1;
+  white-space: pre;
+  color: var(--accent);
+  letter-spacing: 0;
+}
+.weather .temp {
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  font-feature-settings: "tnum";
+}
+.weather .temp sup { font-size: 16px; color: var(--dim); font-weight: 400; vertical-align: top; margin-left: 2px; }
+.weather .desc {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+}
+.weather .forecast {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+}
+.weather .day {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-align: center;
+  color: var(--dim);
+}
+.weather .day .d { color: var(--dim-2); margin-bottom: 4px; letter-spacing: 1px; }
+.weather .day .ic { color: var(--accent); font-size: 13px; line-height: 1; margin: 4px 0; }
+.weather .day .t { color: var(--text); font-size: 11px; }
+
+/* ---------- main column ---------- */
+.main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* search */
+.searchwrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  position: relative;
+  transition: border-color .25s;
+}
+.searchwrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 12%, transparent);
+}
+.searchform { display: flex; align-items: center; }
+.searchform .prompt {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-size: 18px;
+  padding: 18px 4px 18px 22px;
+  letter-spacing: 0;
+}
+.searchform .engine {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  padding: 0 12px 0 4px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-right: 1px solid var(--line);
+  margin-right: 14px;
+  align-self: stretch;
+  display: flex; align-items: center;
+  min-width: 70px;
+}
+.searchform .engine b { color: var(--accent); font-weight: 500; }
+.searchform input {
+  flex: 1;
+  background: none; border: none; outline: none;
+  color: var(--text);
+  font-size: 16px;
+  padding: 18px 16px 18px 0;
+  font-family: var(--sans);
+  letter-spacing: 0.2px;
+}
+.searchform input::placeholder { color: var(--dim); font-style: italic; }
+.searchform .cursor {
+  display: inline-block;
+  width: 8px; height: 16px;
+  background: var(--accent);
+  margin-left: -8px;
+  margin-right: 12px;
+  animation: blink 1.1s steps(2,end) infinite;
+  align-self: center;
+  opacity: .4;
+}
+.searchwrap:focus-within .cursor { opacity: 0; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.bangs {
+  display: flex; flex-wrap: wrap; gap: 0;
+  border-top: 1px solid var(--line);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim-2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.bangs span { padding: 4px 10px; }
+.bangs span b { color: var(--accent); font-weight: 500; }
+.bangs .hint { margin-left: auto; font-style: italic; opacity: .6; }
+
+/* row layout */
+.row { display: grid; gap: 20px; min-width: 0; }
+.row.r-2 { grid-template-columns: 2fr 1fr; }
+.row.r-3 { grid-template-columns: 1fr 1fr 1fr; }
+.row.r-12 { grid-template-columns: 1fr 1fr; }
+
+/* card base */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  min-width: 0;
+}
+.card .head {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.card .head .marker { color: var(--accent); }
+.card .head .grow { flex: 1; }
+.card .head .meta { color: var(--dim-2); font-size: 9px; letter-spacing: 1.5px; }
+.card .head button {
+  background: none; border: none; color: var(--dim); cursor: pointer;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 2px 6px;
+  border: 1px solid var(--line-2); border-radius: var(--radius);
+  transition: color .15s, border-color .15s, background .15s;
+}
+.card .head button:hover { color: var(--accent); border-color: var(--accent); }
+.card .head button.active { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+/* bookmarks */
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.bk-cat h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--dim);
+  font-weight: 500;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bk-cat h3::before {
+  content: ""; width: 4px; height: 4px; background: var(--accent); display: inline-block;
+}
+.bk-cat ul { list-style: none; }
+.bk-cat li { padding: 3px 0; }
+.bk-cat a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13.5px;
+  display: flex; align-items: center; gap: 8px;
+  position: relative; padding-left: 0;
+  transition: color .15s, padding-left .15s;
+}
+.bk-cat a .fav {
+  width: 14px; height: 14px;
+  background: var(--card-2);
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+  background-size: cover; background-position: center;
+}
+.bk-cat a .arrow {
+  margin-left: auto;
+  font-family: var(--mono);
+  color: var(--dim-2);
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.bk-cat a:hover { color: var(--accent); padding-left: 6px; }
+.bk-cat a:hover .arrow { opacity: 1; color: var(--accent); }
+.bk-cat a:hover .fav { border-color: var(--accent); }
+
+/* pomodoro */
+.pomo-display {
+  font-family: var(--mono);
+  font-size: 64px;
+  font-weight: 500;
+  letter-spacing: -2px;
+  text-align: center;
+  font-feature-settings: "tnum";
+  color: var(--text);
+  margin: 6px 0 4px;
+  line-height: 1;
+}
+.pomo-display.running { color: var(--accent); }
+.pomo-state {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 14px;
+}
+.pomo-bar {
+  height: 3px; background: var(--line); border-radius: 2px; overflow: hidden;
+  margin-bottom: 14px;
+}
+.pomo-bar div { height: 100%; background: var(--accent); width: 0%; transition: width 1s linear; }
+.pomo-controls { display: flex; gap: 6px; }
+.pomo-controls button {
+  flex: 1; padding: 9px 0;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; border-radius: var(--radius);
+  transition: all .15s;
+}
+.pomo-controls button:hover { border-color: var(--accent); color: var(--accent); }
+.pomo-controls button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.pomo-controls button.primary:hover { filter: brightness(1.1); color: var(--bg); }
+.pomo-stats {
+  display: flex; justify-content: space-between;
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  font-family: var(--mono); font-size: 10px;
+  color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.pomo-stats b { color: var(--text); font-weight: 500; }
+
+/* spotify / now playing */
+.np {
+  display: flex; gap: 14px; align-items: center;
+}
+.np .art {
+  width: 64px; height: 64px;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--mono);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 22px;
+}
+.np .art .bars { display: flex; gap: 2px; align-items: flex-end; height: 22px; }
+.np .art .bars span {
+  width: 3px; background: var(--accent); border-radius: 1px;
+  animation: bars 0.9s ease-in-out infinite alternate;
+}
+.np .art .bars span:nth-child(1) { animation-delay: 0s; height: 60%; }
+.np .art .bars span:nth-child(2) { animation-delay: .15s; height: 100%; }
+.np .art .bars span:nth-child(3) { animation-delay: .3s; height: 40%; }
+.np .art .bars span:nth-child(4) { animation-delay: .45s; height: 80%; }
+@keyframes bars { from { transform: scaleY(0.4); } to { transform: scaleY(1); } }
+.np .info { min-width: 0; flex: 1; }
+.np .title {
+  font-size: 14px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.np .artist {
+  font-family: var(--mono); font-size: 11px; color: var(--dim);
+  letter-spacing: 0.5px; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.np .progress {
+  height: 2px; background: var(--line); border-radius: 1px;
+  margin-top: 10px; overflow: hidden;
+}
+.np .progress div { height: 100%; background: var(--accent); width: 38%; }
+.np-controls { display: flex; gap: 4px; margin-top: 12px; }
+.np-controls button {
+  flex: 1; padding: 8px 0;
+  background: transparent; color: var(--dim);
+  border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11px;
+  cursor: pointer; border-radius: var(--radius);
+  transition: all .15s;
+}
+.np-controls button:hover { color: var(--accent); border-color: var(--accent); }
+
+/* feed */
+.feed-tabs {
+  display: flex; gap: 4px;
+}
+.feed-tabs button {
+  background: none; border: 1px solid transparent;
+  color: var(--dim); cursor: pointer;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: var(--radius);
+}
+.feed-tabs button.active { color: var(--accent); border-color: var(--line-2); }
+.feed-tabs button:hover { color: var(--text); }
+.feed-list { list-style: none; }
+.feed-list li {
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line-2);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.feed-list li:last-child { border-bottom: none; }
+.feed-list .num {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--dim-2); min-width: 22px; padding-top: 2px;
+}
+.feed-list .body { flex: 1; min-width: 0; }
+.feed-list a {
+  color: var(--text); text-decoration: none;
+  font-size: 13.5px; line-height: 1.4;
+  display: block;
+}
+.feed-list a:hover { color: var(--accent); }
+.feed-list .meta {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--dim); letter-spacing: 0.5px;
+  margin-top: 4px;
+  display: flex; gap: 10px;
+}
+.feed-list .meta .pts { color: var(--accent); }
+
+/* recent / pinned tabs */
+.tabs-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.tabs-list li a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px;
+  color: var(--text); text-decoration: none;
+  font-size: 13px;
+  border-radius: var(--radius);
+  transition: background .15s;
+}
+.tabs-list li a:hover { background: var(--card-2); color: var(--accent); }
+.tabs-list .fav {
+  width: 12px; height: 12px;
+  background: var(--card-2);
+  border: 1px solid var(--line-2);
+  flex-shrink: 0;
+  background-size: cover;
+}
+.tabs-list .url {
+  font-family: var(--mono); font-size: 10px; color: var(--dim-2);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.tabs-add {
+  display: flex; gap: 6px; margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed var(--line-2);
+}
+.tabs-add input {
+  flex: 1; background: var(--card-2); border: 1px solid var(--line);
+  color: var(--text); padding: 6px 8px;
+  font-family: var(--mono); font-size: 11px;
+  border-radius: var(--radius); outline: none;
+}
+.tabs-add input:focus { border-color: var(--accent); }
+.tabs-add button {
+  background: none; border: 1px solid var(--line);
+  color: var(--dim); padding: 0 10px;
+  font-family: var(--mono); font-size: 14px; cursor: pointer;
+  border-radius: var(--radius);
+}
+.tabs-add button:hover { color: var(--accent); border-color: var(--accent); }
+
+/* boot overlay */
+.boot {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg);
+  font-family: var(--mono);
+  color: var(--accent);
+  font-size: 12px;
+  padding: 40px;
+  white-space: pre;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+}
+.boot .line { opacity: 0; }
+.boot .line.ok::after { content: " ok"; color: var(--good); }
+.boot.gone { display: none; }
+
+/* command palette */
+.cmdk-back {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-start; justify-content: center;
+  padding-top: 14vh;
+}
+.cmdk-back.open { display: flex; }
+.cmdk {
+  width: min(560px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.cmdk input {
+  width: 100%; background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--sans);
+  font-size: 16px; padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.cmdk input::placeholder { color: var(--dim); }
+.cmdk ul { list-style: none; max-height: 50vh; overflow-y: auto; }
+.cmdk li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 22px;
+  font-size: 13.5px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+}
+.cmdk li.sel { background: var(--card-2); border-left-color: var(--accent); }
+.cmdk li .ic { color: var(--accent); font-family: var(--mono); width: 16px; }
+.cmdk li .lbl { flex: 1; }
+.cmdk li .kind {
+  font-family: var(--mono); font-size: 10px; color: var(--dim-2);
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+/* tweaks */
+.tweaks-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 100;
+  width: 36px; height: 36px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--dim); cursor: pointer;
+  font-family: var(--mono); font-size: 14px;
+  transition: all .2s;
+}
+.tweaks-fab:hover { color: var(--accent); border-color: var(--accent); transform: rotate(60deg); }
+.tweaks {
+  position: fixed; right: 20px; bottom: 66px; z-index: 100;
+  width: 280px;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.tweaks.open { display: block; }
+.tweaks h4 {
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  display: flex; justify-content: space-between;
+}
+.tweaks h4 .x { cursor: pointer; color: var(--dim-2); }
+.tweaks h4 .x:hover { color: var(--accent); }
+.tweaks .row-tw {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0;
+}
+.tweaks label { color: var(--dim); letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+.tweaks .swatches { display: flex; gap: 6px; }
+.tweaks .sw {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--line); cursor: pointer;
+  transition: border-color .15s, transform .1s;
+}
+.tweaks .sw.active { border-color: var(--text); transform: scale(1.1); }
+.tweaks input[type="text"] {
+  background: var(--card-2); border: 1px solid var(--line);
+  color: var(--text); padding: 4px 8px;
+  font-family: var(--mono); font-size: 11px;
+  border-radius: var(--radius); width: 130px; outline: none;
+}
+.tweaks input[type="text"]:focus { border-color: var(--accent); }
+.tweaks .toggle {
+  position: relative; width: 30px; height: 16px;
+  background: var(--card-2); border: 1px solid var(--line);
+  border-radius: 10px; cursor: pointer;
+}
+.tweaks .toggle::after {
+  content: ""; position: absolute;
+  top: 1px; left: 1px;
+  width: 12px; height: 12px;
+  background: var(--dim); border-radius: 50%;
+  transition: all .15s;
+}
+.tweaks .toggle.on { background: var(--accent); border-color: var(--accent); }
+.tweaks .toggle.on::after { left: 15px; background: var(--bg); }
+
+/* responsive */
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; flex-direction: row; flex-wrap: wrap; }
+  .identity, .nav, .weather { flex: 1; min-width: 240px; }
+  .row.r-2, .row.r-3, .row.r-12 { grid-template-columns: 1fr; }
+  .bookmarks-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  body { padding: 18px; }
+  .bookmarks-grid { grid-template-columns: 1fr; }
+  .statusbar { flex-wrap: wrap; gap: 8px; font-size: 10px; }
+}
+
+/* hidden state for module toggling */
+.hidden-mod { display: none !important; }
+
+/* scroll & selection */
+::selection { background: var(--accent); color: var(--bg); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div class="boot" id="boot">
+<div class="line">[ boot ] kernel: home.localhost v3.7.2</div>
+<div class="line">[ init ] mounting /home/marko ........................</div>
+<div class="line ok">[ init ] reading bookmarks (4 categories, 17 entries)</div>
+<div class="line ok">[ net  ] resolving open-meteo.com</div>
+<div class="line ok">[ net  ] resolving hacker-news.firebaseio.com</div>
+<div class="line ok">[ time ] sync drift: -0.012s</div>
+<div class="line ok">[ load ] modules: clock weather pomodoro feed spotify tabs</div>
+<div class="line">[ ok   ] welcome back, marko.</div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <span class="dot"></span>
+  <span>online</span>
+  <span class="sep">/</span>
+  <span class="clock" id="sb-clock">--:--:--</span>
+  <span class="sep">/</span>
+  <span id="sb-date">—</span>
+  <span class="sep">/</span>
+  <span id="sb-week">—</span>
+  <span class="grow"></span>
+  <span id="sb-uptime">uptime —</span>
+  <span class="sep">/</span>
+  <a href="#" id="open-cmdk">⌘ k</a>
+  <span class="sep">/</span>
+  <span>v3.7.2</span>
+</div>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <div class="identity">
+    <div class="ascii" id="ascii-art">  ╭─────────╮
+  │  · ·  · │
+  │   ◣◢   │
+  │  ◜───◝ │
+  ╰─────────╯</div>
+    <div class="greet" id="greet">— good evening</div>
+    <div class="name"><span class="at">~/</span><span id="name-display">marko</span></div>
+    <div class="quote" id="quote">loading wisdom…</div>
+  </div>
+
+  <nav class="nav">
+    <a href="#m-search"><span class="g">›</span> search <span class="k">/</span></a>
+    <a href="#m-bookmarks"><span class="g">›</span> bookmarks <span class="k">b</span></a>
+    <a href="#m-pomo"><span class="g">›</span> pomodoro <span class="k">p</span></a>
+    <a href="#m-feed"><span class="g">›</span> feed <span class="k">f</span></a>
+    <a href="#m-spotify"><span class="g">›</span> spotify <span class="k">s</span></a>
+    <a href="#m-tabs"><span class="g">›</span> tabs <span class="k">t</span></a>
+    <a href="#" id="open-cmdk-2"><span class="g">›</span> command <span class="k">⌘k</span></a>
+  </nav>
+
+  <div class="weather" id="m-weather">
+    <div class="head">
+      <span>weather</span>
+      <span class="loc" id="w-loc">—</span>
+    </div>
+    <div class="now">
+      <div class="glyph" id="w-glyph">   ⌇⌇
+  ⌇⌇⌇⌇
+   ⌇⌇</div>
+      <div>
+        <div class="temp" id="w-temp">—<sup>°c</sup></div>
+        <div class="desc" id="w-desc">loading…</div>
+      </div>
+    </div>
+    <div class="forecast" id="w-forecast"></div>
+  </div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- SEARCH -->
+  <div id="m-search" class="searchwrap">
+    <form class="searchform" id="searchform" autocomplete="off">
+      <span class="prompt">›</span>
+      <span class="engine"><b id="eng-mark">ddg</b></span>
+      <input id="searchinput" type="text" placeholder="search… (try !g, !yt, !gh, !w, !so)" autofocus>
+      <span class="cursor"></span>
+    </form>
+    <div class="bangs">
+      <span><b>!g</b> google</span>
+      <span><b>!yt</b> youtube</span>
+      <span><b>!gh</b> github</span>
+      <span><b>!w</b> wiki</span>
+      <span><b>!so</b> stack overflow</span>
+      <span><b>!r</b> reddit</span>
+      <span class="hint">— or just type</span>
+    </div>
+  </div>
+
+  <!-- ROW 1: bookmarks -->
+  <section id="m-bookmarks" class="card">
+    <div class="head">
+      <span class="marker">▸</span>
+      <span>bookmarks</span>
+      <span class="grow"></span>
+      <span class="meta">17 entries · 4 categories</span>
+    </div>
+    <div class="bookmarks-grid">
+
+      <div class="bk-cat">
+        <h3>ai</h3>
+        <ul>
+          <li><a href="https://manus.im/" data-d="manus.im"><span class="fav"></span>manus<span class="arrow">↗</span></a></li>
+          <li><a href="https://grok.com/" data-d="grok.com"><span class="fav"></span>grok<span class="arrow">↗</span></a></li>
+          <li><a href="https://chatgpt.com/" data-d="chatgpt.com"><span class="fav"></span>chatgpt<span class="arrow">↗</span></a></li>
+          <li><a href="https://gemini.google.com/" data-d="gemini.google.com"><span class="fav"></span>gemini<span class="arrow">↗</span></a></li>
+          <li><a href="https://claude.ai/" data-d="claude.ai"><span class="fav"></span>claude<span class="arrow">↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="bk-cat">
+        <h3>alati</h3>
+        <ul>
+          <li><a href="https://mail.google.com/" data-d="mail.google.com"><span class="fav"></span>gmail<span class="arrow">↗</span></a></li>
+          <li><a href="https://drive.google.com/" data-d="drive.google.com"><span class="fav"></span>drive<span class="arrow">↗</span></a></li>
+          <li><a href="https://calendar.google.com/" data-d="calendar.google.com"><span class="fav"></span>calendar<span class="arrow">↗</span></a></li>
+          <li><a href="https://shifts.upperechelon.com/" data-d="upperechelon.com"><span class="fav"></span>upper echelon<span class="arrow">↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="bk-cat">
+        <h3>mediji</h3>
+        <ul>
+          <li><a href="https://www.youtube.com/" data-d="youtube.com"><span class="fav"></span>youtube<span class="arrow">↗</span></a></li>
+          <li><a href="https://open.spotify.com/" data-d="spotify.com"><span class="fav"></span>spotify<span class="arrow">↗</span></a></li>
+          <li><a href="https://www.netflix.com/" data-d="netflix.com"><span class="fav"></span>netflix<span class="arrow">↗</span></a></li>
+          <li><a href="https://eon.tv/" data-d="eon.tv"><span class="fav"></span>eon<span class="arrow">↗</span></a></li>
+        </ul>
+      </div>
+
+      <div class="bk-cat">
+        <h3>ostalo</h3>
+        <ul>
+          <li><a href="https://www.reddit.com/" data-d="reddit.com"><span class="fav"></span>reddit<span class="arrow">↗</span></a></li>
+          <li><a href="https://github.com/" data-d="github.com"><span class="fav"></span>github<span class="arrow">↗</span></a></li>
+          <li><a href="https://academync.com/" data-d="academync.com"><span class="fav"></span>academync<span class="arrow">↗</span></a></li>
+          <li><a href="https://www.udemy.com/" data-d="udemy.com"><span class="fav"></span>udemy<span class="arrow">↗</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROW 2: pomodoro + spotify -->
+  <div class="row r-12">
+
+    <section id="m-pomo" class="card">
+      <div class="head">
+        <span class="marker">⏱</span>
+        <span>pomodoro</span>
+        <span class="grow"></span>
+        <button id="pomo-mode-work" class="active">work 25</button>
+        <button id="pomo-mode-break">break 5</button>
+      </div>
+      <div class="pomo-display" id="pomo-time">25:00</div>
+      <div class="pomo-state" id="pomo-state">— ready —</div>
+      <div class="pomo-bar"><div id="pomo-progress"></div></div>
+      <div class="pomo-controls">
+        <button id="pomo-start" class="primary">start</button>
+        <button id="pomo-pause">pause</button>
+        <button id="pomo-reset">reset</button>
+      </div>
+      <div class="pomo-stats">
+        <span>today: <b id="pomo-today">0</b> sessions</span>
+        <span>streak: <b id="pomo-streak">0</b></span>
+        <span>total: <b id="pomo-total">0</b></span>
+      </div>
+    </section>
+
+    <section id="m-spotify" class="card">
+      <div class="head">
+        <span class="marker">♪</span>
+        <span>now playing</span>
+        <span class="grow"></span>
+        <span class="meta" id="np-source">manual</span>
+      </div>
+      <div class="np">
+        <div class="art">
+          <div class="bars"><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="info">
+          <div class="title" id="np-title">— ništa ne svira —</div>
+          <div class="artist" id="np-artist">klikni "edit" da dodaš</div>
+          <div class="progress"><div id="np-prog"></div></div>
+        </div>
+      </div>
+      <div class="np-controls">
+        <button id="np-prev">‹‹ prev</button>
+        <button id="np-edit">edit</button>
+        <button id="np-open">open spotify ↗</button>
+        <button id="np-next">next ››</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ROW 3: feed + tabs -->
+  <div class="row r-2">
+
+    <section id="m-feed" class="card">
+      <div class="head">
+        <span class="marker">▤</span>
+        <span>feed</span>
+        <span class="grow"></span>
+        <div class="feed-tabs">
+          <button class="active" data-feed="hn">hacker news</button>
+          <button data-feed="lobsters">lobsters</button>
+          <button data-feed="reddit">r/programming</button>
+        </div>
+      </div>
+      <ul class="feed-list" id="feed-list">
+        <li><span class="num">--</span><div class="body"><a>učitavanje feed-a…</a><div class="meta"><span>—</span></div></div></li>
+      </ul>
+    </section>
+
+    <section id="m-tabs" class="card">
+      <div class="head">
+        <span class="marker">⌥</span>
+        <span>pinned tabs</span>
+        <span class="grow"></span>
+        <span class="meta" id="tabs-count">—</span>
+      </div>
+      <ul class="tabs-list" id="tabs-list"></ul>
+      <div class="tabs-add">
+        <input id="tab-input" type="text" placeholder="https://… enter to pin">
+        <button id="tab-add">+</button>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+</div>
+
+<!-- FAB & TWEAKS -->
+<div class="tweaks-fab" id="tweaks-fab" title="tweaks">⚙</div>
+<div class="tweaks" id="tweaks">
+  <h4>tweaks <span class="x" id="tw-close">×</span></h4>
+  <div class="row-tw"><label>accent</label>
+    <div class="swatches" id="tw-accent">
+      <span class="sw" data-c="#D97757" style="background:#D97757"></span>
+      <span class="sw" data-c="#7CC47A" style="background:#7CC47A"></span>
+      <span class="sw" data-c="#6BB6FF" style="background:#6BB6FF"></span>
+      <span class="sw" data-c="#E0B96A" style="background:#E0B96A"></span>
+      <span class="sw" data-c="#C77DFF" style="background:#C77DFF"></span>
+    </div>
+  </div>
+  <div class="row-tw"><label>name</label>
+    <input type="text" id="tw-name" maxlength="20">
+  </div>
+  <div class="row-tw"><label>location</label>
+    <input type="text" id="tw-loc" maxlength="20">
+  </div>
+  <div class="row-tw"><label>scan-lines</label>
+    <span class="toggle on" id="tw-scan"></span>
+  </div>
+  <div class="row-tw"><label>boot animation</label>
+    <span class="toggle on" id="tw-boot"></span>
+  </div>
+  <div class="row-tw"><label>show pomodoro</label>
+    <span class="toggle on" id="tw-pomo"></span>
+  </div>
+  <div class="row-tw"><label>show spotify</label>
+    <span class="toggle on" id="tw-spot"></span>
+  </div>
+  <div class="row-tw"><label>show feed</label>
+    <span class="toggle on" id="tw-feed"></span>
+  </div>
+  <div class="row-tw"><label>show tabs</label>
+    <span class="toggle on" id="tw-tabs"></span>
+  </div>
+  <div class="row-tw"><label>show weather</label>
+    <span class="toggle on" id="tw-weath"></span>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmdk-back" id="cmdk-back">
+  <div class="cmdk">
+    <input id="cmdk-input" type="text" placeholder="run a command, jump to a bookmark…">
+    <ul id="cmdk-list"></ul>
+  </div>
+</div>
+
+<script>
+/* ============ STORAGE ============ */
+const LS = {
+  get(k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); } catch { return fb; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+/* ============ BOOT ============ */
+(function bootSeq() {
+  const showBoot = LS.get('tw_boot', true);
+  const boot = document.getElementById('boot');
+  if (!showBoot) { boot.classList.add('gone'); return; }
+  const lines = boot.querySelectorAll('.line');
+  let i = 0;
+  const tick = () => {
+    if (i >= lines.length) {
+      setTimeout(() => { boot.style.transition = 'opacity .4s'; boot.style.opacity = 0; setTimeout(() => boot.classList.add('gone'), 400); }, 250);
+      return;
+    }
+    lines[i].style.opacity = 1;
+    i++;
+    setTimeout(tick, 110 + Math.random() * 90);
+  };
+  setTimeout(tick, 80);
+})();
+
+/* ============ CLOCK / GREETING ============ */
+const startedAt = Date.now();
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmtUptime(ms) {
+  const s = Math.floor(ms/1000);
+  const m = Math.floor(s/60);
+  const h = Math.floor(m/60);
+  if (h > 0) return `uptime ${h}h ${m%60}m`;
+  if (m > 0) return `uptime ${m}m ${s%60}s`;
+  return `uptime ${s}s`;
+}
+function getWeekNo(d) {
+  const a = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = a.getUTCDay() || 7;
+  a.setUTCDate(a.getUTCDate() + 4 - day);
+  const yr = new Date(Date.UTC(a.getUTCFullYear(),0,1));
+  return Math.ceil((((a - yr) / 86400000) + 1)/7);
+}
+function updateClock() {
+  const d = new Date();
+  document.getElementById('sb-clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const days = ['ned','pon','uto','sre','čet','pet','sub'];
+  const months = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
+  document.getElementById('sb-date').textContent = `${days[d.getDay()]} · ${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('sb-week').textContent = `w${getWeekNo(d)}`;
+  document.getElementById('sb-uptime').textContent = fmtUptime(Date.now() - startedAt);
+
+  const h = d.getHours();
+  let g;
+  if (h < 5) g = 'još budan';
+  else if (h < 12) g = 'dobro jutro';
+  else if (h < 18) g = 'dobar dan';
+  else g = 'dobro veče';
+  document.getElementById('greet').textContent = `— ${g}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ============ NAME / LOCATION ============ */
+const tw = {
+  accent: LS.get('tw_accent', '#D97757'),
+  name: LS.get('tw_name', 'marko'),
+  loc: LS.get('tw_loc', 'novi sad'),
+  scan: LS.get('tw_scan', true),
+  boot: LS.get('tw_boot', true),
+  pomo: LS.get('tw_pomo', true),
+  spot: LS.get('tw_spot', true),
+  feed: LS.get('tw_feed', true),
+  tabs: LS.get('tw_tabs', true),
+  weath: LS.get('tw_weath', true),
+};
+function applyTw() {
+  document.documentElement.style.setProperty('--accent', tw.accent);
+  document.getElementById('name-display').textContent = tw.name;
+  document.getElementById('w-loc').textContent = tw.loc;
+  document.body.classList.toggle('no-scanlines', !tw.scan);
+  const map = { pomo: 'm-pomo', spot: 'm-spotify', feed: 'm-feed', tabs: 'm-tabs', weath: 'm-weather' };
+  Object.entries(map).forEach(([k,id]) => {
+    document.getElementById(id)?.classList.toggle('hidden-mod', !tw[k]);
+  });
+  Object.entries(tw).forEach(([k,v]) => LS.set('tw_'+k, v));
+}
+applyTw();
+
+/* ============ QUOTES ============ */
+const quotes = [
+  ["the best way to predict the future is to invent it.", "alan kay"],
+  ["simplicity is the ultimate sophistication.", "leonardo"],
+  ["talk is cheap. show me the code.", "linus"],
+  ["premature optimization is the root of all evil.", "knuth"],
+  ["the only way to do great work is to love what you do.", "—"],
+  ["make it work, make it right, make it fast.", "kent beck"],
+  ["any sufficiently advanced technology is indistinguishable from magic.", "clarke"],
+  ["everything should be made as simple as possible, but not simpler.", "einstein"],
+  ["debugging is twice as hard as writing the code.", "kernighan"],
+  ["the function of good software is to make the complex appear simple.", "grady booch"],
+];
+(function pickQuote() {
+  const q = quotes[Math.floor(Math.random()*quotes.length)];
+  document.getElementById('quote').innerHTML = `${q[0]} <span style="color:var(--dim-2);display:block;margin-top:6px;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">— ${q[1]}</span>`;
+})();
+
+/* ============ SEARCH + BANGS ============ */
+const ENGINES = {
+  '!g':  { url: q => `https://www.google.com/search?q=${q}`, name: 'google' },
+  '!yt': { url: q => `https://www.youtube.com/results?search_query=${q}`, name: 'youtube' },
+  '!gh': { url: q => `https://github.com/search?q=${q}`, name: 'github' },
+  '!w':  { url: q => `https://en.wikipedia.org/wiki/Special:Search?search=${q}`, name: 'wiki' },
+  '!so': { url: q => `https://stackoverflow.com/search?q=${q}`, name: 'stack' },
+  '!r':  { url: q => `https://www.reddit.com/search/?q=${q}`, name: 'reddit' },
+  '!mdn':{ url: q => `https://developer.mozilla.org/en-US/search?q=${q}`, name: 'mdn' },
+};
+const DEFAULT_ENG = { url: q => `https://duckduckgo.com/?q=${q}`, name: 'ddg' };
+
+const sInput = document.getElementById('searchinput');
+const eMark = document.getElementById('eng-mark');
+sInput.addEventListener('input', () => {
+  const v = sInput.value.trim();
+  const m = v.match(/^(!\w+)\s/);
+  if (m && ENGINES[m[1]]) eMark.textContent = ENGINES[m[1]].name;
+  else eMark.textContent = 'ddg';
+});
+document.getElementById('searchform').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const v = sInput.value.trim();
+  if (!v) return;
+  const m = v.match(/^(!\w+)\s+(.+)$/);
+  let target;
+  if (m && ENGINES[m[1]]) target = ENGINES[m[1]].url(encodeURIComponent(m[2]));
+  else target = DEFAULT_ENG.url(encodeURIComponent(v));
+  window.location.href = target;
+});
+
+/* ============ FAVICONS for bookmarks ============ */
+document.querySelectorAll('[data-d]').forEach(a => {
+  const d = a.getAttribute('data-d');
+  const fav = a.querySelector('.fav');
+  if (fav) fav.style.backgroundImage = `url(https://www.google.com/s2/favicons?domain=${d}&sz=32)`;
+});
+
+/* ============ WEATHER (open-meteo, no key) ============ */
+const WCODE = {
+  0:  ['clear', '   *  \n  ***\n   *  '],
+  1:  ['mostly clear', '  *   \n *** \n  *  '],
+  2:  ['partly cloudy', ' ░░░  \n░░░░ \n  ░  '],
+  3:  ['overcast', '░░░░░\n░░░░░\n     '],
+  45: ['fog', '≈≈≈≈≈\n≈≈≈≈≈\n     '],
+  48: ['fog', '≈≈≈≈≈\n≈≈≈≈≈\n     '],
+  51: ['drizzle', ' ░░░ \n ░░░ \n , , '],
+  53: ['drizzle', ' ░░░ \n ░░░ \n , , '],
+  55: ['drizzle', ' ░░░ \n ░░░ \n , , '],
+  61: ['rain', ' ░░░ \n ░░░ \n / / '],
+  63: ['rain', ' ░░░ \n ░░░ \n ///'],
+  65: ['heavy rain', '░░░░░\n░░░░░\n /////'],
+  71: ['snow', ' ░░░ \n ░░░ \n * * '],
+  73: ['snow', ' ░░░ \n ░░░ \n ***'],
+  75: ['heavy snow', '░░░░░\n░░░░░\n*****'],
+  80: ['showers', ' ░░░ \n / / \n / / '],
+  81: ['showers', ' ░░░ \n /// \n /// '],
+  82: ['storm', '░░░░░\n /////\n  ⚡  '],
+  95: ['storm', '░░░░░\n  ⚡  \n /// '],
+  96: ['storm', '░░░░░\n  ⚡  \n /// '],
+  99: ['storm', '░░░░░\n  ⚡  \n /// '],
+};
+const WICONS = { 0:'☀',1:'☀',2:'⛅',3:'☁',45:'≈',48:'≈',51:'☂',53:'☂',55:'☂',61:'☂',63:'☂',65:'☂',71:'❄',73:'❄',75:'❄',80:'☂',81:'☂',82:'⚡',95:'⚡',96:'⚡',99:'⚡' };
+
+async function loadWeather() {
+  if (!tw.weath) return;
+  try {
+    // simple geocode by city name through open-meteo geocoder
+    const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(tw.loc)}&count=1`).then(r=>r.json());
+    if (!geo.results || !geo.results.length) throw new Error('no geo');
+    const lat = geo.results[0].latitude, lon = geo.results[0].longitude;
+    const data = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto`).then(r=>r.json());
+    const code = data.current.weather_code;
+    const desc = WCODE[code] || ['—', '   ?  '];
+    document.getElementById('w-temp').innerHTML = `${Math.round(data.current.temperature_2m)}<sup>°c</sup>`;
+    document.getElementById('w-desc').textContent = desc[0];
+    document.getElementById('w-glyph').textContent = desc[1];
+    const days = ['ned','pon','uto','sre','čet','pet','sub'];
+    const fc = document.getElementById('w-forecast');
+    fc.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const dt = new Date(data.daily.time[i]);
+      const c = data.daily.weather_code[i];
+      fc.insertAdjacentHTML('beforeend', `
+        <div class="day">
+          <div class="d">${days[dt.getDay()]}</div>
+          <div class="ic">${WICONS[c] || '·'}</div>
+          <div class="t">${Math.round(data.daily.temperature_2m_max[i])}°/${Math.round(data.daily.temperature_2m_min[i])}°</div>
+        </div>`);
+    }
+  } catch (e) {
+    document.getElementById('w-temp').innerHTML = `—<sup>°c</sup>`;
+    document.getElementById('w-desc').textContent = 'offline';
+    document.getElementById('w-glyph').textContent = '  ░░ \n ░░░░\n  ░░ ';
+  }
+}
+loadWeather();
+
+/* ============ POMODORO ============ */
+const pomo = {
+  mode: 'work', // 'work' | 'break'
+  durations: { work: 25*60, break: 5*60 },
+  remaining: 25*60,
+  running: false,
+  tickId: null,
+  stats: LS.get('pomo_stats', { date: '', today: 0, streak: 0, total: 0 }),
+};
+function pomoFmt(s) { const m = Math.floor(s/60), x = s%60; return `${pad(m)}:${pad(x)}`; }
+function pomoRender() {
+  document.getElementById('pomo-time').textContent = pomoFmt(pomo.remaining);
+  document.getElementById('pomo-time').classList.toggle('running', pomo.running);
+  const total = pomo.durations[pomo.mode];
+  document.getElementById('pomo-progress').style.width = `${(1 - pomo.remaining/total)*100}%`;
+  document.getElementById('pomo-state').textContent = pomo.running
+    ? `— ${pomo.mode === 'work' ? 'focus' : 'break'} in progress —`
+    : `— ${pomo.mode} ready —`;
+  document.getElementById('pomo-mode-work').classList.toggle('active', pomo.mode === 'work');
+  document.getElementById('pomo-mode-break').classList.toggle('active', pomo.mode === 'break');
+  // stats: reset 'today' if date rolled
+  const today = new Date().toDateString();
+  if (pomo.stats.date !== today) { pomo.stats.date = today; pomo.stats.today = 0; LS.set('pomo_stats', pomo.stats); }
+  document.getElementById('pomo-today').textContent = pomo.stats.today;
+  document.getElementById('pomo-streak').textContent = pomo.stats.streak;
+  document.getElementById('pomo-total').textContent = pomo.stats.total;
+}
+function pomoTick() {
+  if (pomo.remaining > 0) { pomo.remaining--; pomoRender(); }
+  else {
+    pomo.running = false; clearInterval(pomo.tickId); pomo.tickId = null;
+    if (pomo.mode === 'work') {
+      pomo.stats.today++; pomo.stats.total++; pomo.stats.streak++;
+      LS.set('pomo_stats', pomo.stats);
+      pomo.mode = 'break'; pomo.remaining = pomo.durations.break;
+    } else {
+      pomo.mode = 'work'; pomo.remaining = pomo.durations.work;
+    }
+    pomoRender();
+    try { new Notification('pomodoro', { body: `${pomo.mode} time` }); } catch {}
+    // soft tone
+    try {
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = pomo.mode === 'work' ? 880 : 440;
+      o.connect(g); g.connect(ctx.destination); g.gain.value = 0.05;
+      o.start(); setTimeout(()=>{o.stop(); ctx.close();}, 280);
+    } catch {}
+  }
+}
+document.getElementById('pomo-start').onclick = () => {
+  if (pomo.running) return;
+  pomo.running = true;
+  pomo.tickId = setInterval(pomoTick, 1000);
+  pomoRender();
+  try { Notification.requestPermission(); } catch {}
+};
+document.getElementById('pomo-pause').onclick = () => {
+  pomo.running = false; clearInterval(pomo.tickId); pomo.tickId = null; pomoRender();
+};
+document.getElementById('pomo-reset').onclick = () => {
+  pomo.running = false; clearInterval(pomo.tickId); pomo.tickId = null;
+  pomo.remaining = pomo.durations[pomo.mode]; pomoRender();
+};
+document.getElementById('pomo-mode-work').onclick = () => { pomo.mode='work'; pomo.remaining=pomo.durations.work; pomo.running=false; clearInterval(pomo.tickId); pomoRender(); };
+document.getElementById('pomo-mode-break').onclick = () => { pomo.mode='break'; pomo.remaining=pomo.durations.break; pomo.running=false; clearInterval(pomo.tickId); pomoRender(); };
+pomoRender();
+
+/* ============ NOW PLAYING (manual) ============ */
+const np = LS.get('np', { title: '', artist: '', url: '' });
+function npRender() {
+  document.getElementById('np-title').textContent = np.title || '— ništa ne svira —';
+  document.getElementById('np-artist').textContent = np.artist || 'klikni "edit" da dodaš';
+}
+npRender();
+document.getElementById('np-edit').onclick = () => {
+  const t = prompt('naslov pesme:', np.title || '');
+  if (t === null) return;
+  const a = prompt('izvođač:', np.artist || '');
+  if (a === null) return;
+  const u = prompt('url (opciono):', np.url || '');
+  np.title = t; np.artist = a; np.url = u || '';
+  LS.set('np', np); npRender();
+};
+document.getElementById('np-open').onclick = () => {
+  window.open(np.url || 'https://open.spotify.com/', '_blank');
+};
+document.getElementById('np-prev').onclick = () => alert('connect spotify api za live prev/next');
+document.getElementById('np-next').onclick = () => alert('connect spotify api za live prev/next');
+
+/* ============ FEED (HN, lobsters, reddit) ============ */
+async function loadFeed(kind) {
+  const list = document.getElementById('feed-list');
+  list.innerHTML = `<li><span class="num">--</span><div class="body"><a>učitavanje…</a><div class="meta"><span>—</span></div></div></li>`;
+  try {
+    let items = [];
+    if (kind === 'hn') {
+      const ids = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json').then(r=>r.json());
+      const top = ids.slice(0, 10);
+      const fetched = await Promise.all(top.map(id => fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r=>r.json())));
+      items = fetched.map(s => ({
+        title: s.title,
+        url: s.url || `https://news.ycombinator.com/item?id=${s.id}`,
+        meta: `${s.score} pts · ${s.descendants||0} comments · ${s.by}`,
+        score: s.score,
+      }));
+    } else if (kind === 'lobsters') {
+      const data = await fetch('https://lobste.rs/hottest.json').then(r=>r.json());
+      items = data.slice(0, 10).map(s => ({
+        title: s.title,
+        url: s.url || s.short_id_url,
+        meta: `${s.score} pts · ${s.comment_count} comments · ${s.tags.join(', ')}`,
+        score: s.score,
+      }));
+    } else if (kind === 'reddit') {
+      const data = await fetch('https://www.reddit.com/r/programming/top.json?limit=10&t=day').then(r=>r.json());
+      items = data.data.children.map(c => ({
+        title: c.data.title,
+        url: 'https://reddit.com'+c.data.permalink,
+        meta: `${c.data.score} pts · ${c.data.num_comments} comments · u/${c.data.author}`,
+        score: c.data.score,
+      }));
+    }
+    list.innerHTML = items.map((it, i) => `
+      <li>
+        <span class="num">${pad(i+1)}</span>
+        <div class="body">
+          <a href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
+          <div class="meta"><span class="pts">${it.score} ↑</span><span>${it.meta.split(' · ').slice(1).join(' · ')}</span></div>
+        </div>
+      </li>`).join('');
+  } catch (e) {
+    list.innerHTML = `<li><span class="num">!!</span><div class="body"><a>feed nije dostupan (${e.message || 'cors'}). pokušaj kasnije.</a><div class="meta"><span>offline</span></div></div></li>`;
+  }
+}
+document.querySelectorAll('.feed-tabs button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.feed-tabs button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    loadFeed(b.dataset.feed);
+  };
+});
+loadFeed('hn');
+
+/* ============ PINNED TABS ============ */
+const tabs = LS.get('tabs', [
+  { url: 'https://news.ycombinator.com/', title: 'hacker news' },
+  { url: 'https://github.com/notifications', title: 'github · notifications' },
+  { url: 'https://calendar.google.com/', title: 'calendar' },
+]);
+function tabsRender() {
+  const list = document.getElementById('tabs-list');
+  list.innerHTML = tabs.map((t,i) => {
+    const d = (t.url.match(/\/\/([^\/]+)/)||['',''])[1];
+    return `<li>
+      <a href="${t.url}" target="_blank" rel="noopener" data-i="${i}">
+        <span class="fav" style="background-image:url(https://www.google.com/s2/favicons?domain=${d}&sz=32)"></span>
+        <span>${t.title || d}</span>
+        <span class="url">${d}</span>
+        <span class="del" title="ukloni" data-rm="${i}" style="color:var(--dim-2);cursor:pointer;padding:0 4px;">×</span>
+      </a>
+    </li>`;
+  }).join('') || `<li style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:8px;">— nema pinovanih tabova —</li>`;
+  document.getElementById('tabs-count').textContent = `${tabs.length} pinned`;
+  list.querySelectorAll('[data-rm]').forEach(el => el.onclick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    tabs.splice(+el.dataset.rm, 1); LS.set('tabs', tabs); tabsRender();
+  });
+}
+tabsRender();
+document.getElementById('tab-add').onclick = addTab;
+document.getElementById('tab-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTab(); } });
+function addTab() {
+  const i = document.getElementById('tab-input');
+  let v = i.value.trim();
+  if (!v) return;
+  if (!/^https?:\/\//.test(v)) v = 'https://' + v;
+  let title = '';
+  try { title = new URL(v).hostname.replace(/^www\./,''); } catch {}
+  tabs.unshift({ url: v, title });
+  LS.set('tabs', tabs); i.value = ''; tabsRender();
+}
+
+/* ============ TWEAKS PANEL ============ */
+const twPanel = document.getElementById('tweaks');
+const twFab = document.getElementById('tweaks-fab');
+twFab.onclick = () => twPanel.classList.toggle('open');
+document.getElementById('tw-close').onclick = () => twPanel.classList.remove('open');
+
+function paintAccents() {
+  document.querySelectorAll('#tw-accent .sw').forEach(s => s.classList.toggle('active', s.dataset.c === tw.accent));
+}
+paintAccents();
+document.querySelectorAll('#tw-accent .sw').forEach(s => s.onclick = () => {
+  tw.accent = s.dataset.c; applyTw(); paintAccents();
+});
+
+const twNameI = document.getElementById('tw-name');
+const twLocI = document.getElementById('tw-loc');
+twNameI.value = tw.name; twLocI.value = tw.loc;
+twNameI.oninput = () => { tw.name = twNameI.value || 'marko'; applyTw(); };
+twLocI.oninput = () => { tw.loc = twLocI.value || 'novi sad'; applyTw(); };
+let locDeb;
+twLocI.addEventListener('change', () => { clearTimeout(locDeb); locDeb = setTimeout(loadWeather, 200); });
+
+function bindToggle(id, key, sideEffect) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on', !!tw[key]);
+  el.onclick = () => { tw[key] = !tw[key]; el.classList.toggle('on', tw[key]); applyTw(); sideEffect && sideEffect(); };
+}
+bindToggle('tw-scan', 'scan');
+bindToggle('tw-boot', 'boot');
+bindToggle('tw-pomo', 'pomo');
+bindToggle('tw-spot', 'spot');
+bindToggle('tw-feed', 'feed');
+bindToggle('tw-tabs', 'tabs');
+bindToggle('tw-weath','weath', () => { if (tw.weath) loadWeather(); });
+
+/* ============ COMMAND PALETTE ============ */
+const cmdkBack = document.getElementById('cmdk-back');
+const cmdkInput = document.getElementById('cmdk-input');
+const cmdkList = document.getElementById('cmdk-list');
+const ALL_CMDS = [
+  ...document.querySelectorAll('.bk-cat a').values ? [...document.querySelectorAll('.bk-cat a')] : Array.from(document.querySelectorAll('.bk-cat a')),
+].map(a => ({ ic: '↗', lbl: a.textContent.replace('↗','').trim(), kind: 'bookmark', go: () => window.open(a.href, '_blank') }))
+.concat([
+  { ic: '!g', lbl: 'search google', kind: 'action', go: () => { sInput.value='!g '; sInput.focus(); }},
+  { ic: '⏱', lbl: 'pomodoro start', kind: 'action', go: () => document.getElementById('pomo-start').click() },
+  { ic: '⏱', lbl: 'pomodoro reset', kind: 'action', go: () => document.getElementById('pomo-reset').click() },
+  { ic: '♪', lbl: 'edit now playing', kind: 'action', go: () => document.getElementById('np-edit').click() },
+  { ic: '⚙', lbl: 'open tweaks', kind: 'action', go: () => twPanel.classList.add('open') },
+  { ic: '▤', lbl: 'feed: hacker news', kind: 'action', go: () => { document.querySelector('[data-feed="hn"]').click(); }},
+  { ic: '▤', lbl: 'feed: lobsters', kind: 'action', go: () => { document.querySelector('[data-feed="lobsters"]').click(); }},
+  { ic: '▤', lbl: 'feed: r/programming', kind: 'action', go: () => { document.querySelector('[data-feed="reddit"]').click(); }},
+]);
+let cmdSel = 0, cmdFiltered = ALL_CMDS;
+function cmdRender() {
+  cmdkList.innerHTML = cmdFiltered.slice(0, 40).map((c,i) => `
+    <li class="${i===cmdSel?'sel':''}" data-i="${i}"><span class="ic">${c.ic}</span><span class="lbl">${c.lbl}</span><span class="kind">${c.kind}</span></li>
+  `).join('');
+  cmdkList.querySelectorAll('li').forEach(li => {
+    li.onclick = () => { cmdFiltered[+li.dataset.i].go(); closeCmdk(); };
+    li.onmouseenter = () => { cmdSel = +li.dataset.i; cmdRender(); };
+  });
+}
+function openCmdk() {
+  cmdkBack.classList.add('open');
+  cmdkInput.value = ''; cmdSel = 0; cmdFiltered = ALL_CMDS; cmdRender();
+  setTimeout(() => cmdkInput.focus(), 30);
+}
+function closeCmdk() { cmdkBack.classList.remove('open'); }
+document.getElementById('open-cmdk').onclick = (e) => { e.preventDefault(); openCmdk(); };
+document.getElementById('open-cmdk-2').onclick = (e) => { e.preventDefault(); openCmdk(); };
+cmdkBack.addEventListener('click', e => { if (e.target === cmdkBack) closeCmdk(); });
+cmdkInput.addEventListener('input', () => {
+  const q = cmdkInput.value.toLowerCase().trim();
+  cmdFiltered = q ? ALL_CMDS.filter(c => c.lbl.toLowerCase().includes(q)) : ALL_CMDS;
+  cmdSel = 0; cmdRender();
+});
+cmdkInput.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); cmdSel = Math.min(cmdSel+1, cmdFiltered.length-1); cmdRender(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); cmdSel = Math.max(cmdSel-1, 0); cmdRender(); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (cmdFiltered[cmdSel]) { cmdFiltered[cmdSel].go(); closeCmdk(); } }
+  else if (e.key === 'Escape') closeCmdk();
+});
+window.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCmdk(); }
+});
+
+</script>
+</body>
+</html>
