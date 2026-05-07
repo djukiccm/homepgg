@@ -455,6 +455,53 @@ body::after {
 }
 .pomo-stats b { color: var(--text); font-weight: 500; }
 
+/* ambient sounds */
+.amb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.amb-pad {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 14px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--mono);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: all .15s;
+}
+.amb-pad .ic { color: var(--accent); font-size: 20px; line-height: 1; }
+.amb-pad .nm { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+.amb-pad:hover { border-color: var(--accent); }
+.amb-pad:hover .nm { color: var(--text); }
+.amb-pad.on { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, var(--card-2)); }
+.amb-pad.on .nm { color: var(--accent); }
+.amb-pad.on .ic { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.4; } }
+.amb-volume {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  font-family: var(--mono);
+}
+.amb-volume .vlabel, .amb-volume .vval {
+  font-size: 10px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.amb-volume .vval { color: var(--text); min-width: 24px; text-align: right; }
+.amb-volume input[type=range] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 2px; background: var(--line); border-radius: 2px; outline: none;
+}
+.amb-volume input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 12px; height: 12px; background: var(--accent); border-radius: 50%; cursor: pointer;
+}
+.amb-volume input[type=range]::-moz-range-thumb {
+  width: 12px; height: 12px; background: var(--accent); border-radius: 50%; cursor: pointer; border: none;
+}
+
 /* spotify / now playing */
 .np {
   display: flex; gap: 14px; align-items: center;
@@ -774,11 +821,11 @@ body::after {
 <aside class="sidebar">
 
   <div class="identity">
-    <div class="ascii" id="ascii-art">  ╭─────────╮
-  │  · ·  · │
-  │   ◣◢   │
-  │  ◜───◝ │
-  ╰─────────╯</div>
+    <div class="ascii" id="ascii-art">     ╱|、
+   (˚ˎ 。7  
+    |、˜〵    
+    じしˍ,)ノ
+   ─ ─ ─ ─ ─</div>
     <div class="greet" id="greet">— good evening</div>
     <div class="name"><span class="at">~/</span><span id="name-display">marko</span></div>
     <div class="quote" id="quote">loading wisdom…</div>
@@ -789,7 +836,7 @@ body::after {
     <a href="#m-bookmarks"><span class="g">›</span> bookmarks <span class="k">b</span></a>
     <a href="#m-pomo"><span class="g">›</span> pomodoro <span class="k">p</span></a>
     <a href="#m-feed"><span class="g">›</span> feed <span class="k">f</span></a>
-    <a href="#m-spotify"><span class="g">›</span> spotify <span class="k">s</span></a>
+    <a href="#m-ambient"><span class="g">›</span> ambient <span class="k">s</span></a>
     <a href="#m-tabs"><span class="g">›</span> tabs <span class="k">t</span></a>
     <a href="#" id="open-cmdk-2"><span class="g">›</span> command <span class="k">⌘k</span></a>
   </nav>
@@ -914,28 +961,25 @@ body::after {
       </div>
     </section>
 
-    <section id="m-spotify" class="card">
+    <section id="m-ambient" class="card">
       <div class="head">
         <span class="marker">♪</span>
-        <span>now playing</span>
+        <span>ambient sounds</span>
         <span class="grow"></span>
-        <span class="meta" id="np-source">manual</span>
+        <span class="meta" id="amb-status">— stopped —</span>
       </div>
-      <div class="np">
-        <div class="art">
-          <div class="bars"><span></span><span></span><span></span><span></span></div>
-        </div>
-        <div class="info">
-          <div class="title" id="np-title">— ništa ne svira —</div>
-          <div class="artist" id="np-artist">klikni "edit" da dodaš</div>
-          <div class="progress"><div id="np-prog"></div></div>
-        </div>
+      <div class="amb-grid" id="amb-grid">
+        <button class="amb-pad" data-snd="rain"><span class="ic">☂</span><span class="nm">rain</span></button>
+        <button class="amb-pad" data-snd="forest"><span class="ic">❦</span><span class="nm">forest</span></button>
+        <button class="amb-pad" data-snd="cafe"><span class="ic">☕</span><span class="nm">cafe</span></button>
+        <button class="amb-pad" data-snd="waves"><span class="ic">≈</span><span class="nm">waves</span></button>
+        <button class="amb-pad" data-snd="fire"><span class="ic">✸</span><span class="nm">fire</span></button>
+        <button class="amb-pad" data-snd="brown"><span class="ic">▓</span><span class="nm">brown noise</span></button>
       </div>
-      <div class="np-controls">
-        <button id="np-prev">‹‹ prev</button>
-        <button id="np-edit">edit</button>
-        <button id="np-open">open spotify ↗</button>
-        <button id="np-next">next ››</button>
+      <div class="amb-volume">
+        <span class="vlabel">vol</span>
+        <input type="range" id="amb-vol" min="0" max="100" value="40">
+        <span class="vval" id="amb-vval">40</span>
       </div>
     </section>
 
@@ -1111,7 +1155,7 @@ function applyTw() {
   document.getElementById('name-display').textContent = tw.name;
   document.getElementById('w-loc').textContent = tw.loc;
   document.body.classList.toggle('no-scanlines', !tw.scan);
-  const map = { pomo: 'm-pomo', spot: 'm-spotify', feed: 'm-feed', tabs: 'm-tabs', weath: 'm-weather' };
+  const map = { pomo: 'm-pomo', spot: 'm-ambient', feed: 'm-feed', tabs: 'm-tabs', weath: 'm-weather' };
   Object.entries(map).forEach(([k,id]) => {
     document.getElementById(id)?.classList.toggle('hidden-mod', !tw[k]);
   });
@@ -1173,6 +1217,26 @@ document.querySelectorAll('[data-d]').forEach(a => {
   const d = a.getAttribute('data-d');
   const fav = a.querySelector('.fav');
   if (fav) fav.style.backgroundImage = `url(https://www.google.com/s2/favicons?domain=${d}&sz=32)`;
+});
+
+/* ============ BOOKMARK CLICK FIX (Firefox file:// blocks anchor nav) ============ */
+// Force window.open() for any external link — bypasses Firefox's file:// → http(s) block.
+document.querySelectorAll('.bk-cat a[href^="http"], .tabs-list a[href^="http"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const url = a.getAttribute('href');
+    // try window.open first; if popup blocked, fall back to location assign in new tab via temp anchor
+    const w = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!w) {
+      // last-resort: copy URL and notify
+      try { navigator.clipboard.writeText(url); } catch {}
+      const msg = document.createElement('div');
+      msg.textContent = `link blokiran — kopiran u clipboard: ${url}`;
+      msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);color:var(--text);padding:10px 16px;font-family:var(--mono);font-size:11px;z-index:9999;border-radius:2px;';
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 3000);
+    }
+  });
 });
 
 /* ============ WEATHER (open-meteo, no key) ============ */
@@ -1303,27 +1367,129 @@ document.getElementById('pomo-mode-work').onclick = () => { pomo.mode='work'; po
 document.getElementById('pomo-mode-break').onclick = () => { pomo.mode='break'; pomo.remaining=pomo.durations.break; pomo.running=false; clearInterval(pomo.tickId); pomoRender(); };
 pomoRender();
 
-/* ============ NOW PLAYING (manual) ============ */
-const np = LS.get('np', { title: '', artist: '', url: '' });
-function npRender() {
-  document.getElementById('np-title').textContent = np.title || '— ništa ne svira —';
-  document.getElementById('np-artist').textContent = np.artist || 'klikni "edit" da dodaš';
-}
-npRender();
-document.getElementById('np-edit').onclick = () => {
-  const t = prompt('naslov pesme:', np.title || '');
-  if (t === null) return;
-  const a = prompt('izvođač:', np.artist || '');
-  if (a === null) return;
-  const u = prompt('url (opciono):', np.url || '');
-  np.title = t; np.artist = a; np.url = u || '';
-  LS.set('np', np); npRender();
+/* ============ AMBIENT SOUNDS (Web Audio, no external) ============ */
+const Amb = {
+  ctx: null, master: null, active: null, activeKey: null, vol: LS.get('amb_vol', 40),
+  ensure() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = this.vol / 100;
+    this.master.connect(this.ctx.destination);
+  },
+  stop() {
+    if (this.active) { try { this.active.stop(); } catch {} this.active = null; }
+    this.activeKey = null;
+    document.querySelectorAll('.amb-pad').forEach(p => p.classList.remove('on'));
+    document.getElementById('amb-status').textContent = '— stopped —';
+  },
+  play(key) {
+    this.ensure();
+    if (this.activeKey === key) { this.stop(); return; }
+    this.stop();
+    const node = this.build(key);
+    if (!node) return;
+    this.active = node;
+    this.activeKey = key;
+    document.querySelectorAll('.amb-pad').forEach(p => p.classList.toggle('on', p.dataset.snd === key));
+    document.getElementById('amb-status').textContent = `▶ ${key}`;
+  },
+  noiseBuffer(seconds, type) {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, sr * seconds, sr);
+    const d = buf.getChannelData(0);
+    if (type === 'white') { for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1; }
+    else if (type === 'pink') {
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for (let i=0;i<d.length;i++) {
+        const w = Math.random()*2-1;
+        b0 = 0.99886*b0 + w*0.0555179; b1 = 0.99332*b1 + w*0.0750759;
+        b2 = 0.96900*b2 + w*0.1538520; b3 = 0.86650*b3 + w*0.3104856;
+        b4 = 0.55000*b4 + w*0.5329522; b5 = -0.7616*b5 - w*0.0168980;
+        d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11; b6 = w*0.115926;
+      }
+    } else if (type === 'brown') {
+      let last = 0;
+      for (let i=0;i<d.length;i++) { const w = Math.random()*2-1; last = (last + 0.02*w)/1.02; d[i] = last*3.5; }
+    }
+    return buf;
+  },
+  build(key) {
+    const ctx = this.ctx, out = ctx.createGain(); out.connect(this.master);
+    const stop = () => { try { out.disconnect(); } catch {} };
+    if (key === 'rain') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'pink'); src.loop = true;
+      const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=400;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=4500;
+      src.connect(hp); hp.connect(lp); lp.connect(out); src.start();
+      return { stop: () => { try{src.stop();}catch{}; stop(); } };
+    }
+    if (key === 'forest') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'pink'); src.loop = true;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2200;
+      src.connect(lp); lp.connect(out); src.start();
+      // sporadic chirps
+      const chirpId = setInterval(() => {
+        if (!this.ctx) return;
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = 1800 + Math.random()*1600;
+        o.type = 'sine'; g.gain.value = 0;
+        o.connect(g); g.connect(out);
+        const t = ctx.currentTime;
+        g.gain.linearRampToValueAtTime(0.06, t+0.02);
+        g.gain.linearRampToValueAtTime(0, t+0.18);
+        o.frequency.exponentialRampToValueAtTime(o.frequency.value*1.2, t+0.18);
+        o.start(t); o.stop(t+0.2);
+      }, 1800 + Math.random()*2200);
+      return { stop: () => { try{src.stop();}catch{}; clearInterval(chirpId); stop(); } };
+    }
+    if (key === 'cafe') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'brown'); src.loop = true;
+      const bp = ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=600; bp.Q.value=0.7;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800;
+      src.connect(bp); bp.connect(lp); lp.connect(out); src.start();
+      return { stop: () => { try{src.stop();}catch{}; stop(); } };
+    }
+    if (key === 'waves') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'pink'); src.loop = true;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.12;
+      const lfoGain = ctx.createGain(); lfoGain.gain.value = 0.6;
+      const swell = ctx.createGain(); swell.gain.value = 0.5;
+      lfo.connect(lfoGain); lfoGain.connect(swell.gain);
+      src.connect(lp); lp.connect(swell); swell.connect(out);
+      src.start(); lfo.start();
+      return { stop: () => { try{src.stop();lfo.stop();}catch{}; stop(); } };
+    }
+    if (key === 'fire') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'pink'); src.loop = true;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1200;
+      src.connect(lp); lp.connect(out); src.start();
+      // crackles
+      const cId = setInterval(() => {
+        if (!this.ctx) return;
+        const o = ctx.createBufferSource(); o.buffer = this.noiseBuffer(0.05, 'white');
+        const g = ctx.createGain(); g.gain.value = 0.25;
+        o.connect(g); g.connect(out); o.start();
+      }, 250 + Math.random()*400);
+      return { stop: () => { try{src.stop();}catch{}; clearInterval(cId); stop(); } };
+    }
+    if (key === 'brown') {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuffer(4, 'brown'); src.loop = true;
+      src.connect(out); src.start();
+      return { stop: () => { try{src.stop();}catch{}; stop(); } };
+    }
+  }
 };
-document.getElementById('np-open').onclick = () => {
-  window.open(np.url || 'https://open.spotify.com/', '_blank');
+document.querySelectorAll('.amb-pad').forEach(p => p.onclick = () => Amb.play(p.dataset.snd));
+const ambVol = document.getElementById('amb-vol');
+const ambVval = document.getElementById('amb-vval');
+ambVol.value = Amb.vol; ambVval.textContent = Amb.vol;
+ambVol.oninput = () => {
+  Amb.vol = +ambVol.value; ambVval.textContent = Amb.vol;
+  if (Amb.master) Amb.master.gain.value = Amb.vol/100;
+  LS.set('amb_vol', Amb.vol);
 };
-document.getElementById('np-prev').onclick = () => alert('connect spotify api za live prev/next');
-document.getElementById('np-next').onclick = () => alert('connect spotify api za live prev/next');
 
 /* ============ FEED (HN, lobsters, reddit) ============ */
 async function loadFeed(kind) {
@@ -1464,7 +1630,12 @@ const ALL_CMDS = [
   { ic: '!g', lbl: 'search google', kind: 'action', go: () => { sInput.value='!g '; sInput.focus(); }},
   { ic: '⏱', lbl: 'pomodoro start', kind: 'action', go: () => document.getElementById('pomo-start').click() },
   { ic: '⏱', lbl: 'pomodoro reset', kind: 'action', go: () => document.getElementById('pomo-reset').click() },
-  { ic: '♪', lbl: 'edit now playing', kind: 'action', go: () => document.getElementById('np-edit').click() },
+  { ic: '♪', lbl: 'ambient: rain', kind: 'action', go: () => Amb.play('rain') },
+  { ic: '♪', lbl: 'ambient: forest', kind: 'action', go: () => Amb.play('forest') },
+  { ic: '♪', lbl: 'ambient: cafe', kind: 'action', go: () => Amb.play('cafe') },
+  { ic: '♪', lbl: 'ambient: waves', kind: 'action', go: () => Amb.play('waves') },
+  { ic: '♪', lbl: 'ambient: fire', kind: 'action', go: () => Amb.play('fire') },
+  { ic: '♪', lbl: 'ambient: stop', kind: 'action', go: () => Amb.stop() },
   { ic: '⚙', lbl: 'open tweaks', kind: 'action', go: () => twPanel.classList.add('open') },
   { ic: '▤', lbl: 'feed: hacker news', kind: 'action', go: () => { document.querySelector('[data-feed="hn"]').click(); }},
   { ic: '▤', lbl: 'feed: lobsters', kind: 'action', go: () => { document.querySelector('[data-feed="lobsters"]').click(); }},
